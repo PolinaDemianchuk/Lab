@@ -85,12 +85,12 @@ int main()
     std::cin >> money;
     std::cin.ignore();
 
-    wchar_t filename_rep[20];
+    wchar_t filenameRep[20];
     _cputs("Enter report name:");
-    std::wcin.getline(filename_rep, 20);
+    std::wcin.getline(filenameRep, 20);
 
     wchar_t Rep[40];
-    swprintf_s(Rep, 40, L"Reporter.exe \"%s\" \"%s\" %d", filename, filename_rep, money);
+    swprintf_s(Rep, 40, L"Reporter.exe \"%s\" \"%s\" %d", filename, filenameRep, money);
 
     STARTUPINFO siRep;
     PROCESS_INFORMATION piRep;
@@ -133,7 +133,7 @@ int main()
     }
     _cputs("\n---- REPORT ----\n");
 
-    std::ifstream report(filename_rep);
+    std::ifstream report(filenameRep);
     if (report.is_open())
     {
         std::string line;

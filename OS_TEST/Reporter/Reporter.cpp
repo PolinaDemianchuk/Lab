@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    char* infilename = argv[1];
-    char* outfilename = argv[2];
+    char* inFilename = argv[1];
+    char* outFilename = argv[2];
     double payment = atoi(argv[3]);
 
     if (payment <= 0)
@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::ifstream infile(infilename, std::ios::binary);
-    if (!infile.is_open())
+    std::ifstream inFile(inFilename, std::ios::binary);
+    if (!inFile.is_open())
     {
         _cprintf("Error: Cannot open input file\n");
         _cputs("Press any key to finish.\n");
@@ -35,8 +35,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::ofstream outfile(outfilename);
-    if (!outfile.is_open())
+    std::ofstream outFile(outFilename);
+    if (!outFile.is_open())
     {
         _cprintf("Error: Cannot create output file\n");
         _cputs("Press any key to finish.\n");
@@ -44,22 +44,22 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    outfile << "File report \"" << infilename << "\"" << std::endl;
-    outfile << "\tIP\t | \tNAME\t | HOURS | PAYMENT" << std::endl << std::endl;
+    outFile << "File report \"" << inFilename << "\"" << std::endl;
+    outFile << "\tIP\t | \tNAME\t | HOURS | PAYMENT" << std::endl << std::endl;
 
     employee emp;
     int count = 0;
 
-    while (infile.read((char*)(&emp), sizeof(employee)))
+    while (inFile.read((char*)(&emp), sizeof(employee)))
     {
         count++;
         double salary = emp.hours * payment;
 
-        outfile << emp.num << "\t\t | "<< emp.name << "\t | "<< emp.hours << "\t | "<< salary << std::endl;
+        outFile << emp.num << "\t\t | "<< emp.name << "\t | "<< emp.hours << "\t | "<< salary << std::endl;
     }
 
-    infile.close();
-    outfile.close();
+    inFile.close();
+    outFile.close();
 
     _cputs("Report generated successfully\n");
     _cputs("Press any key to finish.\n");
