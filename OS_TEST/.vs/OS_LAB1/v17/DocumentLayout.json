@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\~\\Lab\\OS_TEST\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{4A8A7455-3A9C-4719-A51A-40568F2B670E}|OS_TEST\\OS_TEST.vcxproj|C:\\Users\\~\\Lab\\OS_TEST\\OS_TEST\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4A8A7455-3A9C-4719-A51A-40568F2B670E}|OS_TEST\\OS_TEST.vcxproj|solutionrelative:OS_TEST\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D3B2E84E-CE61-4026-A2F2-67FE02067F1F}|Reporter\\Reporter.vcxproj|C:\\Users\\~\\Lab\\OS_TEST\\Reporter\\Reporter.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{D3B2E84E-CE61-4026-A2F2-67FE02067F1F}|Reporter\\Reporter.vcxproj|solutionrelative:Reporter\\Reporter.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3D93290A-6DBC-4420-B237-4597D311D479}|CREATOR_TEST\\CREATOR_TEST.vcxproj|C:\\Users\\~\\Lab\\OS_TEST\\CREATOR_TEST\\Creator.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{3D93290A-6DBC-4420-B237-4597D311D479}|CREATOR_TEST\\CREATOR_TEST.vcxproj|solutionrelative:CREATOR_TEST\\Creator.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4A8A7455-3A9C-4719-A51A-40568F2B670E}|OS_TEST\\OS_TEST.vcxproj|C:\\Users\\~\\Lab\\OS_TEST\\OS_TEST\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4A8A7455-3A9C-4719-A51A-40568F2B670E}|OS_TEST\\OS_TEST.vcxproj|solutionrelative:OS_TEST\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,12 +25,8 @@
           "SelectedChildIndex": 2,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Creator.cpp",
               "DocumentMoniker": "C:\\Users\\~\\Lab\\OS_TEST\\CREATOR_TEST\\Creator.cpp",
               "RelativeDocumentMoniker": "CREATOR_TEST\\Creator.cpp",
@@ -38,31 +34,30 @@
               "RelativeToolTip": "CREATOR_TEST\\Creator.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-09-07T15:51:24.171Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-07T15:51:24.171Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Reporter.cpp",
               "DocumentMoniker": "C:\\Users\\~\\Lab\\OS_TEST\\Reporter\\Reporter.cpp",
               "RelativeDocumentMoniker": "Reporter\\Reporter.cpp",
               "ToolTip": "C:\\Users\\~\\Lab\\OS_TEST\\Reporter\\Reporter.cpp",
               "RelativeToolTip": "Reporter\\Reporter.cpp",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABUAAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-09-07T19:43:49.034Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "Main.cpp",
               "DocumentMoniker": "C:\\Users\\~\\Lab\\OS_TEST\\OS_TEST\\Main.cpp",
               "RelativeDocumentMoniker": "OS_TEST\\Main.cpp",
               "ToolTip": "C:\\Users\\~\\Lab\\OS_TEST\\OS_TEST\\Main.cpp",
               "RelativeToolTip": "OS_TEST\\Main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIcAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAAAD0AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-09-07T15:39:40.333Z",
               "EditorCaption": ""
