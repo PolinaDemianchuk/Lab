@@ -2,8 +2,8 @@
 struct arrInfo
 {
 	int size;
-	int* arr;
-	int min;
-	int max;
-	double average;
+    int* arr;
+	volatile int min;
+	volatile int max;
+	volatile double average;
 };
