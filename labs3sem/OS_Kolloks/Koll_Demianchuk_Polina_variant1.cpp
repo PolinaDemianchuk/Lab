@@ -1,65 +1,6 @@
-﻿
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
-long long fact(int n)
-{
-    if (n < 0) return 0;
-    if (n == 0 || n == 1) return 1;
-    return n * fact(n - 1);
-}
-
-std::vector<int> duplicate(std::vector<int> arr, int size)
-{
-    std::vector<int> modified_arr;
-    bool isDuplicate;
-    for (int i = 0; i < size; i++)
-    {
-        isDuplicate = false;
-        for (int j = 0; j < modified_arr.size(); j++)
-        {
-            if (arr[i] == modified_arr[j])
-            {
-                isDuplicate = true;
-                break;
-            }
-        }
-        if (!isDuplicate)
-        {
-            modified_arr.push_back(arr[i]);
-        }
-    }
-    return modified_arr;
-}
-
-struct Node 
-{
-    int data;
-    Node* next;
-    Node(int val) : data(val), next(nullptr) {}
-};
-
-void Reverse(Node*& head)
-{
-    if (head == nullptr || head->next == nullptr)
-        return;
-
-    Node* newHead = head->next;
-    Reverse(newHead);
-
-    head->next->next = head;
-    head->next = nullptr;
-    head = newHead;
-}
-
-void printList(Node* head) 
-{
-    while (head!=nullptr) 
-    {
-        std::cout << head->data << " ";
-        head = head->next;
-    }
-    std::cout << std::endl;
-}
+#include "Funcs.h"
 
 int main()
 {
@@ -115,12 +56,13 @@ int main()
     Node* head=NULL;
     Node* tail=NULL;
     Node* newNode;
+
     int numb;
     std::cout << "Enter numbers: ";
     for (int i = 0; i < count; i++) 
     {
         std::cin >> numb;
-        newNode = new Node(numb);
+        newNode = new Node (numb);
         if (head == nullptr) 
         {
             head = newNode;
