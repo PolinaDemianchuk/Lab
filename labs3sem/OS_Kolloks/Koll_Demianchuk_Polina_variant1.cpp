@@ -22,13 +22,22 @@ int main()
     std::cout << std::endl;
     std::vector<int> dupArr;
     int size;
-    std::cout << "Enter size of array to remove duplicates: " ;
-    std::cin >> size;
-
-    dupArr.resize(size);
-
+    try
+    {
+        std::cout << "Enter size of array to remove duplicates: ";
+        std::cin >> size;
+        if (size < 0)
+        {
+            throw "Number must be positive!";
+        }
+        dupArr.resize(size);
+    }
+    catch (const char* invalErr)
+    {
+        std::cout << "Error: " << invalErr<<std::endl;
+    }
     std::cout << "Enter array: ";
-
+   
     for (int i = 0; i < size; i++)
     {
         std::cin >> dupArr[i];
@@ -44,8 +53,20 @@ int main()
     std::cout << std::endl;
 
     int count;
-    std::cout << "Enter number of elements to reverse: ";
-    std::cin >> count;
+
+    try
+    {
+        std::cout << "Enter number of elements to reverse: ";
+        std::cin >> count;
+        if (count < 0)
+        {
+            throw "Number must be positive!";
+        }
+    }
+    catch (const char* invalErr)
+    {
+        std::cout << "Error: " << invalErr<<std::endl;
+    }
 
     if (count <= 0) 
     {
@@ -76,7 +97,6 @@ int main()
     }
 
     Reverse(head);
-
     std::cout << "Reversed List: ";
     printList(head);
 

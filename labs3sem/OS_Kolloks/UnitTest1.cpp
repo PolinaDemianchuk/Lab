@@ -33,16 +33,19 @@ namespace UnitTest1
 
 		TEST_METHOD(TestReverse)
 		{
-			std::vector<int> arr = { 1, 2, 2, 3, 4, 3 };
+			Node* Testnode1 = new Node(7);
+			Node* Testnode2 = new Node(1);
+			Node* Testnode3 = new Node(8);
 
-			std::vector<int> afterDuplicate = duplicate(arr, 6);
+			Testnode1->next = Testnode2;
+			Testnode2->next = Testnode3;
 
-			std::vector<int> expected = { 1, 2, 3, 4 };
+			Node* Testhead = Testnode1;
+			Reverse(Testhead);
 
-			for (size_t i = 0; i < expected.size(); i++)
-			{
-				Assert::AreEqual(afterDuplicate[i], expected[i]);
-			}
+			Assert::AreEqual(8, Testhead->data);
+			Assert::AreEqual(1, Testhead->next->data);
+			Assert::AreEqual(7, Testhead->next->next->data);
 		}
 	};
 }
