@@ -10,4 +10,5 @@ public abstract class AbsList<T>
     public abstract void delete(int id);
     public abstract List<T> getAll();
     public abstract void displayAll();
+    public abstract void sortMapId();
 }

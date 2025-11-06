@@ -1,12 +1,11 @@
 package classes;
 
 import abstractclasses.AbsList;
-import classes.CoffeeMachineNotAbstr;
 import java.util.*;
 
 public class CoffeeMachineMap extends AbsList<CoffeeMachineNotAbstr>
 {
-    private Map<Integer, CoffeeMachineNotAbstr> machineMap = new HashMap<>();
+    private final Map<Integer, CoffeeMachineNotAbstr> machineMap = new HashMap<>();
 
     @Override
     public void add(CoffeeMachineNotAbstr machine) {
@@ -19,17 +18,20 @@ public class CoffeeMachineMap extends AbsList<CoffeeMachineNotAbstr>
     }
 
     @Override
-    public void update(CoffeeMachineNotAbstr updatedMachine) {
+    public void update(CoffeeMachineNotAbstr updatedMachine)
+    {
         machineMap.put(updatedMachine.getId(), updatedMachine);
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(int id)
+    {
         machineMap.remove(id);
     }
 
     @Override
-    public List<CoffeeMachineNotAbstr> getAll() {
+    public List<CoffeeMachineNotAbstr> getAll()
+    {
         return new ArrayList<>(machineMap.values());
     }
 
@@ -37,18 +39,19 @@ public class CoffeeMachineMap extends AbsList<CoffeeMachineNotAbstr>
     public void displayAll() 
     {
         System.out.println(" All Coffee Machines (Map)");
-        for (CoffeeMachineNotAbstr machine : machineMap.values()) 
+        Iterator<CoffeeMachineNotAbstr> it = machineMap.values().iterator();
+        while (it.hasNext())
         {
+            CoffeeMachineNotAbstr machine = it.next();
             System.out.println(machine);
         }
     }
-    public void displayAllSortedById()
+
+    @Override
+    public void sortMapId()
     {
-        System.out.println("All Coffee Machines (Sorted Map by ID)");
-        TreeMap<Integer, CoffeeMachineNotAbstr> sortedMap = new TreeMap<>(machineMap);
-        for (CoffeeMachineNotAbstr machine : sortedMap.values())
-        {
-            System.out.println(machine);
-        }
+        System.out.println("Sorted machines(by ID)");
+        SortedMap<Integer,CoffeeMachineNotAbstr> sortMap =new TreeMap <>();
+
     }
 }

@@ -2,16 +2,8 @@ package abstractclasses;
 
 import java.util.Date;
 
-public abstract class CoffeeMachine 
+public abstract class CoffeeMachine
 {
-    protected int id;
-    protected String type;
-    protected String model;
-    protected int power;
-    protected int maxCoffeeCapacity;
-    protected int maxWaterCapacity;
-    protected Date manufactureDate;
-    protected double price;
 
     public abstract int getId();
     public abstract String getType();
@@ -21,7 +13,7 @@ public abstract class CoffeeMachine
     public abstract int getMaxWaterCapacity();
     public abstract Date getManufactureDate();
     public abstract double getPrice();
-    
+
     public abstract void setId(int id);
     public abstract void setType(String type);
     public abstract void setModel(String model);

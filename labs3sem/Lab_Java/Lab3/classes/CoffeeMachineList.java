@@ -1,15 +1,13 @@
 package classes;
 
 import abstractclasses.AbsList;
-import abstractclasses.CoffeeMachine;
-import classes.CoffeeMachineNotAbstr;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class CoffeeMachineList extends AbsList<CoffeeMachineNotAbstr>
 {
-    private List<CoffeeMachineNotAbstr> machines = new ArrayList<>();
+    private final List<CoffeeMachineNotAbstr> machines = new ArrayList<>();
     
     @Override
     public void add(CoffeeMachineNotAbstr machine)
@@ -68,10 +66,15 @@ public class CoffeeMachineList extends AbsList<CoffeeMachineNotAbstr>
     public void displayAll() 
     {
         Iterator<CoffeeMachineNotAbstr> iterator = machines.iterator();
-        System.out.println("All Coffee Machines (List)");
+        System.out.println("All Coffee Machines");
         while (iterator.hasNext()) 
         {
             System.out.println(iterator.next());
         }
+    }
+
+    @Override
+    public void sortMapId() {
+
     }
 }
