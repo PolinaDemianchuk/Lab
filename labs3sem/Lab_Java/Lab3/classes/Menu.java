@@ -14,18 +14,36 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.*;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class Menu
 {
     private Scanner scanner;
     private AbsList<CoffeeMachineNotAbstr> coffeeList;
     private AbsList<CoffeeMachineNotAbstr> coffeeMap;
+    private FilesMethods FilesAll;
 
     public Menu(AbsList<CoffeeMachineNotAbstr> coffeeList, AbsList<CoffeeMachineNotAbstr> coffeeMap)
     {
         this.scanner = new Scanner(System.in);
         this.coffeeList = coffeeList;
         this.coffeeMap = coffeeMap;
+        this.FilesAll= new FilesMethods();
     }
 
     public void showMenu()
@@ -44,6 +62,8 @@ public class Menu
             System.out.println("9. Export to txt file");
             System.out.println("10. Import from json file");
             System.out.println("11. Export to json file");
+            System.out.println("12. Export to xml file");
+            System.out.println("13. Import from xml file");
             System.out.println("0. Exit");
             System.out.print("Choose an option: ");
 
@@ -74,18 +94,37 @@ public class Menu
                     coffeeMap.sortMapId();
                     break;
                 case 8:
-                    readFile();
+                    List<CoffeeMachineNotAbstr> mach = FilesAll.importFromTxt("coffee_machines_info.txt");
+                    for (CoffeeMachineNotAbstr machine : mach)
+                    {
+                        coffeeList.add(machine);
+                        coffeeMap.add(machine);
+                    }
                     break;
 
                 case 9:
-                    writeFile();
+                    FilesAll.exportToTxt(coffeeList.getAll(), "coffee_machines.txt");
+                    FilesAll.exportToTxt(coffeeMap.getAll(), "coffee_machinesMap.txt");
                     break;
 
                 case 10:
-                    importFromJSON();
+                    List<CoffeeMachineNotAbstr> machJ  = FilesAll.importFromJSON("coffeeMachines.json");
+                    for (CoffeeMachineNotAbstr machine : machJ)
+                    {
+                        coffeeList.add(machine);
+                        coffeeMap.add(machine);
+                    }
                     break;
                 case 11:
-                    writeToJSON();
+                    FilesAll.exportToJSON(coffeeList.getAll(), "CoffeeMacinesUpdated.json");
+                    FilesAll.exportToJSON(coffeeMap.getAll(), "CoffeeMacinesUpdatedMap.json");
+                    break;
+                case 12:
+                    FilesAll.exportToXML(coffeeList.getAll(), "coffee_machines.xml");
+                    FilesAll.exportToXML(coffeeMap.getAll(), "coffee_machines_map.xml");
+                    break;
+                case 13:
+                    //ReadfromXml();
                     break;
                 case 0:
                     return;
@@ -228,14 +267,11 @@ public class Menu
                 System.out.println("Invalid choice.");
                 return;
         }
-
-        for (CoffeeMachineNotAbstr machine : allMachines) {
-            coffeeList.add(machine);
-        }
+        coffeeList.clear();
 
         for (CoffeeMachineNotAbstr machine : allMachines)
         {
-            coffeeMap.add(machine);
+            coffeeList.add(machine);
         }
     }
 
@@ -279,225 +315,5 @@ public class Menu
             }
         }
     }
-
-    private void writeFile()
-    {
-        try (FileWriter writer = new FileWriter("coffee_machines.txt"))
-        {
-            List<CoffeeMachineNotAbstr> allMachines = coffeeList.getAll();
-            Iterator<CoffeeMachineNotAbstr> it = allMachines.iterator();
-            while (it.hasNext()) {
-                CoffeeMachineNotAbstr machine = it.next();
-                writer.write(machine.getId() + " || " +
-                        machine.getType() + " || " +
-                        machine.getModel() + " || " +
-                        machine.getPower() + " || " +
-                        machine.getMaxCoffeeCapacity() + " || " +
-                        machine.getMaxWaterCapacity() + " || " +
-                        new SimpleDateFormat("dd.MM.yyyy").format(machine.getManufactureDate()) + " || " +
-                        machine.getPrice() + "\n");
-            }
-            System.out.println("Saved " + allMachines.size() + " machines to coffee_machines.txt");
-        } catch (IOException e)
-        {
-            System.out.println("Error saving file: " + e.getMessage());
-        }
-
-        try (FileWriter writer = new FileWriter("coffee_machinesMap.txt"))
-        {
-            List<CoffeeMachineNotAbstr> allMachinesMap = coffeeMap.getAll();
-            Iterator<CoffeeMachineNotAbstr> itM = allMachinesMap.iterator();
-            while (itM.hasNext())
-            {
-                CoffeeMachineNotAbstr machine = itM.next();
-                writer.write(machine.getId() + " || " +
-                        machine.getType() + " || " +
-                        machine.getModel() + " || " +
-                        machine.getPower() + " || " +
-                        machine.getMaxCoffeeCapacity() + " || " +
-                        machine.getMaxWaterCapacity() + " || " +
-                        new SimpleDateFormat("dd.MM.yyyy").format(machine.getManufactureDate()) + " || " +
-                        machine.getPrice() + "\n");
-            }
-            System.out.println("Saved " + allMachinesMap.size() + " machines to coffee_machines.txt");
-        }
-        catch (IOException e)
-        {
-            System.out.println("Error saving file: " + e.getMessage());
-        }
-    }
-
-    private void readFile()
-    {
-        try (Scanner fileScanner = new Scanner(new FileReader("coffee_machines_info.txt")))
-        {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-
-            while (fileScanner.hasNextLine())
-            {
-                String line = fileScanner.nextLine();
-                if (line.isEmpty()) continue;
-
-                String[] elems = line.split(",");
-                if (elems.length == 8)
-                {
-                    try
-                    {
-                        int id = Integer.parseInt(elems[0]);
-                        String type = elems[1];
-                        String model = elems[2];
-                        int power = Integer.parseInt(elems[3]);
-                        int coffeeCap = Integer.parseInt(elems[4]);
-                        int waterCap = Integer.parseInt(elems[5]);
-                        Date date = dateFormat.parse(elems[6]);
-                        double price = Double.parseDouble(elems[7]);
-
-                        CoffeeMachineNotAbstr machine = new CoffeeMachineNotAbstr(
-                                id, type, model, power, coffeeCap, waterCap, date, price);
-                        coffeeList.add(machine);
-                        coffeeMap.add(machine);
-
-                    } catch (Exception e)
-                    {
-                        System.out.println("Error parsing line" + e.getMessage());
-                    }
-                }
-            }
-            System.out.println("Loaded machines from file");
-
-        }
-        catch (IOException e)
-        {
-            System.out.println("Error loading file " + e.getMessage());
-        }
-    }
-
-    private void importFromJSON()
-    {
-        String path = "coffeeMachines.json";
-
-        try
-        {
-            JSONParser parser = new JSONParser();
-            Object obj = parser.parse(new FileReader(path));
-            JSONObject JsonFile = (JSONObject) obj;
-            JSONArray machinesArray = (JSONArray) JsonFile.get("coffeeMachines");
-            int count = 0;
-
-            Iterator<Object> it = machinesArray.iterator();
-            while (it.hasNext())
-            {
-                Object item = it.next();
-                JSONObject machineJson = (JSONObject) item;
-
-                try
-                {
-                    int id = Integer.parseInt(machineJson.get("id").toString());
-                    String type = (String) machineJson.get("type");
-                    String model = (String) machineJson.get("model");
-                    int power = Integer.parseInt(machineJson.get("power").toString());
-                    int maxCoffeeCapacity = Integer.parseInt(machineJson.get("maxCoffeeCapacity").toString());
-                    int maxWaterCapacity = Integer.parseInt(machineJson.get("maxWaterCapacity").toString());
-                    String dateStr = (String) machineJson.get("Created");
-                    double price = Double.parseDouble(machineJson.get("price").toString());
-
-                    Date manufactureDate = new SimpleDateFormat("dd.MM.yyyy").parse(dateStr);
-
-                    CoffeeMachineNotAbstr machine = new CoffeeMachineNotAbstr(
-                            id, type, model, power, maxCoffeeCapacity, maxWaterCapacity, manufactureDate, price);
-                    coffeeList.add(machine);
-                    coffeeMap.add(machine);
-                    count++;
-
-                } catch (Exception e) {
-                    System.out.println("Error parsing machine from JSON: " + e.getMessage());
-                }
-            }
-
-            System.out.println("Imported " + count + " machines from " + path);
-
-        } catch (Exception e)
-        {
-            System.out.println("Error importing from JSON: " + e.getMessage());
-        }
-    }
-
-    private void writeToJSON()
-    {
-        String pathList = "CoffeeMacinesUpdated.json";
-        String pathMap = "CoffeeMacinesUpdatedMap.json";
-
-        try
-        {
-            JSONArray machinesArray = new JSONArray();
-            List<CoffeeMachineNotAbstr> allMachinesList = coffeeList.getAll();
-            List<CoffeeMachineNotAbstr> allMachinesMap = coffeeMap.getAll();
-
-            Iterator<CoffeeMachineNotAbstr> it = allMachinesList.iterator();
-
-            while (it.hasNext())
-            {
-                CoffeeMachineNotAbstr machine = it.next();
-                JSONObject machineJson = new JSONObject();
-                machineJson.put("id", machine.getId());
-                machineJson.put("type", machine.getType());
-                machineJson.put("model", machine.getModel());
-                machineJson.put("power", machine.getPower());
-                machineJson.put("maxCoffeeCapacity", machine.getMaxCoffeeCapacity());
-                machineJson.put("maxWaterCapacity", machine.getMaxWaterCapacity());
-                machineJson.put("Created", new SimpleDateFormat("dd.MM.yyyy").format(machine.getManufactureDate()));
-                machineJson.put("price", machine.getPrice());
-
-                machinesArray.add(machineJson);
-            }
-
-            JSONObject j = new JSONObject();
-            j.put("coffeeMachines", machinesArray);
-
-            try (PrintWriter out = new PrintWriter(new FileWriter(pathList)))
-            {
-                out.write(j.toString());
-                System.out.println("Exported " + allMachinesList.size() + " machines to " + pathList);
-            }
-
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error exporting to JSON: " + e.getMessage());
-        }
-
-        JSONArray mapArray = new JSONArray();
-        List<CoffeeMachineNotAbstr> allMachinesMap = coffeeMap.getAll();
-        Iterator<CoffeeMachineNotAbstr> itM = allMachinesMap.iterator();
-
-        while (itM.hasNext())
-        {
-            CoffeeMachineNotAbstr machine = itM.next();
-            JSONObject machineJson = new JSONObject();
-            machineJson.put("id", machine.getId());
-            machineJson.put("type", machine.getType());
-            machineJson.put("model", machine.getModel());
-            machineJson.put("power", machine.getPower());
-            machineJson.put("maxCoffeeCapacity", machine.getMaxCoffeeCapacity());
-            machineJson.put("maxWaterCapacity", machine.getMaxWaterCapacity());
-            machineJson.put("created", new SimpleDateFormat("dd.MM.yyyy").format(machine.getManufactureDate()));
-            machineJson.put("price", machine.getPrice());
-            mapArray.add(machineJson);
-        }
-
-        JSONObject mapJson = new JSONObject();
-        mapJson.put("coffeeMachines", mapArray);
-
-        try (PrintWriter out = new PrintWriter(new FileWriter(pathMap)))
-        {
-            out.write(mapJson.toJSONString());
-            System.out.println("Exported " + allMachinesMap.size() + " machines from MAP to " + pathMap);
-        }
-        catch(Exception e)
-    {
-        System.out.println("Error exporting to JSON: " + e.getMessage());
-    }
-    }
-
 
 }

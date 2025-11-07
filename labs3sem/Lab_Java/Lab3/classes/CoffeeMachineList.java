@@ -74,7 +74,14 @@ public class CoffeeMachineList extends AbsList<CoffeeMachineNotAbstr>
     }
 
     @Override
-    public void sortMapId() {
+    public void sortMapId()
+    {
 
+    }
+
+    @Override
+    public void clear()
+    {
+        machines.clear();
     }
 }
