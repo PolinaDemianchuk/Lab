@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
         HANDLE hEvent = CreateEvent(NULL, TRUE, FALSE, eventName.c_str());
         if (hEvent == NULL)
         {
-            std::cout << "Create event failed for sender " << i + 1 << std::endl;
+            std::cout << "Create event failed" << std::endl;
             return GetLastError();
         }
         hReadyEvents.push_back(hEvent);
@@ -55,17 +55,27 @@ int main(int argc, char* argv[])
         return GetLastError();
     }
 
+    HANDLE hMsgEvent = CreateEvent(NULL, TRUE, FALSE, L"MsgEvent");
+    if (hMsgEvent == NULL)
+    {
+        std::cout << "Create event failed" << std::endl;
+        return GetLastError();
+    }
+
     HANDLE hConsoleMutex = CreateMutex(NULL, FALSE, L"ConsoleMutex");
     if (hConsoleMutex == NULL)
     {
         std::cout << "Create console mutex failed." << std::endl;
         return GetLastError();
     }
+    HANDLE hEnoughSpaceEvent = CreateEvent(NULL, TRUE, TRUE, L"EnoughSpace");
+    if (hEnoughSpaceEvent == NULL)
+    {
+        std::cout << "Create console mutex failed." << std::endl;
+        return GetLastError();
+    }
 
     std::vector<PROCESS_INFORMATION> senderProcesses;
-
-    WaitForSingleObject(hConsoleMutex, INFINITE);
-    ReleaseMutex(hConsoleMutex);
 
     for (int i = numSenders-1; i >=0; i--)
     {
@@ -90,25 +100,18 @@ int main(int argc, char* argv[])
             &si,
             &pi))
         {
-            WaitForSingleObject(hConsoleMutex, INFINITE);
             std::cout << "Sender process " << i + 1 << " started successfully!" << std::endl;
-            ReleaseMutex(hConsoleMutex);
 
             senderProcesses.push_back(pi);
         }
         else
         {
-            WaitForSingleObject(hConsoleMutex, INFINITE);
             std::cout << "Failed to start Sender process " << i + 1 << std::endl;
-            ReleaseMutex(hConsoleMutex);
         }
     }
 
     WaitForMultipleObjects(numSenders, hReadyEvents.data(), TRUE, INFINITE);
-
-    WaitForSingleObject(hConsoleMutex, INFINITE);
     std::cout << "All Senders are ready" << std::endl;
-    ReleaseMutex(hConsoleMutex);
 
     std::fstream file(filename, std::ios::in | std::ios::out | std::ios::binary);
     if (!file) 
@@ -116,78 +119,101 @@ int main(int argc, char* argv[])
         std::cout << "Cannot open file" << std::endl;
         return 1;
     }
-
-    std::string command;
+    std::string cmd;
+    int posInd=0;
     while (true)
     {
-        std::cout << "|Reciever| Enter command (read/exit): ";
-        std::cin >> command;
+        WaitForSingleObject(hConsoleMutex, INFINITE);
+        std::cout << "|Receiver| Enter command (read/exit): ";
+        ReleaseMutex(hConsoleMutex);
 
-        if (command == "exit") 
+        std::cin >> cmd;
+
+        if (cmd == "exit")
         {
             break;
         }
-        else if (command == "read") 
+        else if (cmd == "read")
         {
-            WaitForSingleObject(hFileMutex, INFINITE);
-
             bool anyMessage = false;
-            file.clear();
-            file.seekg(0, std::ios::beg);
 
-            for (int i = 0; i < numRecords; i++)
+            while (!anyMessage)
             {
-                char buff[maxLen + 1] = { 0 };
-                file.read(buff, maxLen);
+                WaitForSingleObject(hFileMutex, INFINITE);
 
-                bool empty = true;
-                for (int j = 0; j < maxLen; ++j) {
-                    if (buff[j] != '\0') 
+
+                for (int i = 0; i < numRecords; i++)
+                {
+                    int Ind = (posInd + i) % numRecords;
+                    int pos = Ind * maxLen;
+                    file.seekg(pos);
+                    char buff[maxLen + 1] = { 0 };
+                    file.read(buff, maxLen);
+
+                    bool empty = true;
+                    for (int j = 0; j < maxLen; ++j) {
+                        if (buff[j] != '\0')
+                        {
+                            empty = false;
+                            break;
+                        }
+                    }
+
+                    if (!empty)
                     {
-                        empty = false;
+                        anyMessage = true;
+                        WaitForSingleObject(hConsoleMutex, INFINITE);
+                        std::cout << "Message from record " << Ind + 1 << ": " << buff << std::endl;
+                        ReleaseMutex(hConsoleMutex);
+                        file.seekp(pos);
+                        std::string emptyStr(maxLen, '\0');
+                        file.write(emptyStr.c_str(), maxLen);
+                        file.flush();
+
+                        posInd = (Ind + 1) % numRecords;
+                        SetEvent(hEnoughSpaceEvent);
                         break;
                     }
                 }
+                ReleaseMutex(hFileMutex);
 
-                if (!empty)
+                if (!anyMessage)
                 {
-                    anyMessage = true;
-                    std::cout << "Message from record " << i+1 << ": " << buff << std::endl;
-                    file.seekp(i * maxLen, std::ios::beg);
-                    std::string emptyStr(maxLen, '\0');
-                    file.write(emptyStr.c_str(), maxLen);
-                    file.flush();
-                    break;
+                    WaitForSingleObject(hConsoleMutex, INFINITE);
+                    std::cout << "No messages. Waiting for new messages..." << std::endl;
+                    ReleaseMutex(hConsoleMutex);
+                    ResetEvent(hMsgEvent);
+                    WaitForSingleObject(hMsgEvent, INFINITE);
                 }
             }
-
-            if (!anyMessage)
-                std::cout << "No new messages" << std::endl;
-
-            ReleaseMutex(hFileMutex);
+      
         }
         else
         {
+            WaitForSingleObject(hConsoleMutex, INFINITE);
             std::cout << "Unknown command" << std::endl;
+            ReleaseMutex(hConsoleMutex);
         }
     }
 
     file.close();
-    for (auto& hEvent : hReadyEvents)
-        CloseHandle(hEvent);
-
-    CloseHandle(hFileMutex);
-    CloseHandle(hConsoleMutex);
-    WaitForSingleObject(hConsoleMutex, INFINITE);
-    ReleaseMutex(hConsoleMutex);
 
     for (auto& pi : senderProcesses)
     {
         TerminateProcess(pi.hProcess, 0);
-        WaitForSingleObject(pi.hProcess, INFINITE);
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
     }
+
+    for (auto& hEvent : hReadyEvents)
+    {
+        CloseHandle(hEvent);
+    }
+
+    CloseHandle(hFileMutex);
+    CloseHandle(hMsgEvent);
+    CloseHandle(hEnoughSpaceEvent);
+    CloseHandle(hConsoleMutex);
 
     std::cout << "Receiver stopped." << std::endl;
     return 0;

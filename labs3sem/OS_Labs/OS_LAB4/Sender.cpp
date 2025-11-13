@@ -53,11 +53,28 @@ int main(int argc, char* argv[])
         std::cin.get();
         return GetLastError();
     }
-
+    HANDLE hEnoughSpaceEvent = CreateEvent(NULL, TRUE, TRUE, L"EnoughSpace");
+    {
+        if (!hEnoughSpaceEvent)
+        {
+            std::cout << "Open event failed." << std::endl;
+            std::cout << "Press any key to exit." << std::endl;
+            std::cin.get();
+            return GetLastError();
+        }
+    }
+    HANDLE hMsgEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, L"MsgEvent");
+    {
+        if (!hMsgEvent)
+        {
+            std::cout << "Open event failed." << std::endl;
+            std::cout << "Press any key to exit." << std::endl;
+            std::cin.get();
+            return GetLastError();
+        }
+    }
     SetEvent(hReadyEvent);
-    WaitForSingleObject(hConsoleMutex, INFINITE);
-    ReleaseMutex(hConsoleMutex);
-    std::string command;
+    std::string cmd;
 
     while (true)
     {
@@ -65,50 +82,46 @@ int main(int argc, char* argv[])
         std::cout << "|Sender " << senderId+1 << "| Enter command (send/exit): ";
         ReleaseMutex(hConsoleMutex);
 
-        std::cin >> command;
+        std::cin >> cmd;
 
-        if (command == "exit")
+        if (cmd == "exit")
         {
             break;
         }
-        else if (command == "send")
+        else if (cmd == "send")
         {
             std::string message;
             
             WaitForSingleObject(hConsoleMutex, INFINITE);
             std::cout << "Enter message: ";
-            ReleaseMutex(hConsoleMutex);
-
             std::cin.ignore();
             std::getline(std::cin, message);
+            ReleaseMutex(hConsoleMutex); 
 
             if (message.length() > maxLen)
             {
                 message = message.substr(0, maxLen);
                 std::cout << "20 symbols maximum!!" << std::endl;
-                continue;
             }
 
             bool written = false;
-            int attempts = 0;
-            const int maxAttempts = 2;
-
-            while (!written && attempts < maxAttempts)
+            while (!written)
             {
                 WaitForSingleObject(hFileMutex, INFINITE);
 
-                file.clear();
-                file.seekg(0, std::ios::beg);
+                bool emptySpace = false;
 
                 for (int i = 0; i < numRecords; i++)
                 {
-                    char buffer[maxLen];
-                    file.read(buffer, maxLen);
+                    int pos = i * maxLen;
+                    file.seekg(pos);
+                    char buff[maxLen];
+                    file.read(buff, maxLen);
 
                     bool empty = true;
                     for (int j = 0; j < maxLen; j++)
                     {
-                        if (buffer[j] != '\0')
+                        if (buff[j] != '\0')
                         {
                             empty = false;
                             break;
@@ -117,16 +130,18 @@ int main(int argc, char* argv[])
 
                     if (empty)
                     {
-                        file.seekp(i * maxLen, std::ios::beg);
+                        file.seekp(pos);
                         char msg[maxLen] = { 0 };
                         strncpy_s(msg, message.c_str(), maxLen);
                         file.write(msg, maxLen);
                         file.flush();
                         written = true;
 
+                        SetEvent(hMsgEvent);
                         WaitForSingleObject(hConsoleMutex, INFINITE);
                         std::cout << "Message sent to record " << i+1 << std::endl;
                         ReleaseMutex(hConsoleMutex);
+                        emptySpace = true;
                         break;
                     }
                 }
@@ -134,22 +149,13 @@ int main(int argc, char* argv[])
                 ReleaseMutex(hFileMutex);
 
                 if (!written)
-                {
-                    WaitForSingleObject(hConsoleMutex, INFINITE);
-                    std::cout << " File is full" << std::endl;
-                    ReleaseMutex(hConsoleMutex);
-
-                    Sleep(1000);
-                    attempts++;
+                {   
+                    std::cout << "Queue is full." << std::endl;
+                    ResetEvent(hEnoughSpaceEvent);
+                    WaitForSingleObject(hEnoughSpaceEvent, INFINITE);
                 }
             }
-
-            if (!written)
-            {
-                WaitForSingleObject(hConsoleMutex, INFINITE);
-                std::cout  << "Could not send message" << std::endl;
-                ReleaseMutex(hConsoleMutex);
-            }
+          
         }
         else
         {
@@ -162,9 +168,10 @@ int main(int argc, char* argv[])
     WaitForSingleObject(hConsoleMutex, INFINITE);
     std::cout << "Sender " << senderId+1 << " stopped." << std::endl;
     ReleaseMutex(hConsoleMutex);
-
     CloseHandle(hReadyEvent);
     CloseHandle(hFileMutex);
+    CloseHandle(hMsgEvent);
+    CloseHandle(hEnoughSpaceEvent);
     CloseHandle(hConsoleMutex);
     file.close();
     return 0;
