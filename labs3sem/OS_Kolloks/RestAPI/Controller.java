@@ -1,15 +1,19 @@
 package com.rest.crud;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
 public class Controller
 {
+    private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private final TaskRepository taskRep;
 
     public Controller(TaskRepository taskRep)
@@ -20,12 +24,14 @@ public class Controller
     @GetMapping
     public List<Task> getAllTasks()
     {
+        log.info("Request to get task list");
         return taskRep.findAll();
     }
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task)
     {
+
         if (task.getStatus() == null)
         {
             task.setStatus("todo");
@@ -34,9 +40,11 @@ public class Controller
         return new ResponseEntity<>(saveTask, HttpStatus.CREATED);
     }
 
+    @Cacheable(value = "tasks", key = "#id")
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id)
     {
+        log.info("Finding a task with ID: {}", id);
         return taskRep.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -54,9 +62,11 @@ public class Controller
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @CacheEvict(value = "tasks", key = "#id")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id)
     {
+        log.info("Request to delete a task with ID: {}", id);
         if (taskRep.existsById(id))
         {
             taskRep.deleteById(id);
