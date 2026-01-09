@@ -1,5 +1,6 @@
 package com.rest.crud;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,9 @@ import java.util.List;
 @RequestMapping("/tasks")
 public class Controller
 {
+    @Autowired
+    private Message msg;
+
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private final TaskRepository taskRep;
 
@@ -37,6 +41,7 @@ public class Controller
             task.setStatus("todo");
         }
         Task saveTask = taskRep.save(task);
+        msg.sendTaskNotification("A new task was created: " + saveTask.getTitle());
         return new ResponseEntity<>(saveTask, HttpStatus.CREATED);
     }
 
